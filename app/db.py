@@ -1,13 +1,16 @@
-from pydantic import BaseModel, Field
-from typing import Annotated
+from sqlmodel import create_engine, text
+from dotenv import load_dotenv
+import os
+from pathlib import Path
 
+load_dotenv(Path("/Users/paulzpaulus/Desktop/Masterschool/Flashme/flashMe/.env"))
 
-class Userbase(BaseModel):
-    user_id = int
-    user_name = str
-    user_email = str
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    raise RuntimeError("DATABASE_URL not set")
 
+engine = create_engine(DATABASE_URL, echo=True)
 
-class UserRead(BaseException):
-
-
+with engine.connect() as conn:
+    result = conn.execute(text("SELECT 1")) # type: ignore
+    print("OK:", result.scalar()) # type: ignore

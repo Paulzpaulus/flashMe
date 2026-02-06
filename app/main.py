@@ -1,5 +1,7 @@
 from fastapi import FastAPI, HTTPException
-from user_model import User
+from models.user_model import User
+
+
 
 app = FastAPI()
 
@@ -10,7 +12,7 @@ async def root():
 
 # read ALL users
 @app.get("/users")
-async def show_users(User):
+async def show_users(User: User):
     if not User:
         raise HTTPException(status_code=404, detail="No Users found")
     return User
@@ -19,7 +21,7 @@ async def show_users(User):
 #read ONE user
 @app.get("/users/{user_id})")
 async def show_a_user(user_id: int):
-    pass
+    return {"user_id": user_id}
 
 #create user
 @app.get("/users")
