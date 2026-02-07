@@ -11,5 +11,15 @@ class User(SQLModel):
     password: str = Field(..., min_length= 5, max_length=20)
 
 
+class Token(SQLModel):
+    access_token: str
+    token_type: str
+
+
+class TokenData(SQLModel):
+    username: str | None = None
+
+
+
 
 

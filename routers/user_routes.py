@@ -1,7 +1,7 @@
 
 from fastapi import HTTPException, APIRouter
 from models.user_model import User
-
+from service.user_CRUD import get_user, create_user, delete_user
 
 router = APIRouter()
 
@@ -11,7 +11,7 @@ async def root():
 
 # read ALL users
 @router.get("/users")
-async def show_users(User: User):
+async def get_user(User: User):
     if not User:
         raise HTTPException(status_code=404, detail="No Users found")
     return User
