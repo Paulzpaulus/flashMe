@@ -7,7 +7,7 @@ from routers.user_routes import router
 from config.db import get_session
 
 app = FastAPI()
-
+app.include_router(router)
 
 
 
@@ -15,7 +15,7 @@ app = FastAPI()
 def on_startup():
     print("I am here now")
     create_db_and_tables()
-    app.include_router(router)
+
 
 
 

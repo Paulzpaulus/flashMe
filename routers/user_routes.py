@@ -4,7 +4,9 @@ from sqlmodel import Session
 from models.user import User
 from service.user_CRUD import CRUD_get_user, CRUD_create_user, CRUD_delete_user, CRUD_update_user, CRUD_get_all_users
 from config.db import get_session
-from auth.auth import create_token
+
+
+
 router = APIRouter()
 
 @router.get("/")
