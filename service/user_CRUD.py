@@ -1,8 +1,8 @@
-from sqlmodel import Session, select
-from models.user import User
+from sqlmodel import Session
+from models.user import  User
 from typing import Optional
 
-def CRUD_get_all_users(session: Session) -> Optional[list[User]]:
+def CRUD_get_all_users(session: Session) -> list[User]:
     return session.exec(User) #type: ignore
 
 def CRUD_get_user(session: Session, id: int) -> Optional[User]:
@@ -29,7 +29,7 @@ def CRUD_update_user(session: Session, id: int, new_email: Optional[str] = None,
     return user
 
 def CRUD_delete_user(session: Session, user_id: int) -> Optional[User]:
-    user = session.get(User, user_id)
+    user = session.get(User, User.id)
     if user:
         session.delete(user)
         session.commit()

@@ -1,5 +1,5 @@
 from sqlmodel import Field, SQLModel
-from typing import Optional
+
 
 
 class UserBase(SQLModel):
@@ -10,7 +10,7 @@ class UserBase(SQLModel):
 
 class User(UserBase, table=True):
     id: int = Field(default=None, primary_key=True)
-    hashed_password: str = Field(nullable=False)  #niemals echtes pw
+    hashed_password: str = Field(nullable=True)  #niemals echtes pw
 
 
 

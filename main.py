@@ -1,13 +1,11 @@
-from fastapi import FastAPI, Depends
-from fastapi.security import OAuth2PasswordBearer
-from typing import Annotated
-from config.db import create_db_and_tables, SessionDep
-from models.user import User
-from routers.user_routes import router
-from config.db import get_session
+from fastapi import FastAPI
+from config.db import create_db_and_tables
+from routers.user_routes import user_routes
+from routers.auth_routes import auth
 
 app = FastAPI()
-app.include_router(router)
+app.include_router(user_routes)
+app.include_router(auth)
 
 
 
