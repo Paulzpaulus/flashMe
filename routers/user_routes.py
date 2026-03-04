@@ -1,7 +1,7 @@
 
 from fastapi import HTTPException, APIRouter, Depends
 from sqlmodel import Session
-from models.user import UserBase
+from models.user import Users
 from service.user_CRUD import CRUD_get_user, CRUD_create_user, CRUD_delete_user, CRUD_update_user, CRUD_get_all_users
 from config.db import get_session
 
@@ -32,7 +32,7 @@ async def show_a_user(user_id: int, session: Session = Depends(get_session)):
 
 #create user
 @user_routes.post("/users")
-async def create_user(user: UserBase, session: Session = Depends(get_session)):
+async def create_user(user: Users, session: Session = Depends(get_session)):
     created_user = CRUD_create_user(session, user)
     print(f"{created_user} created.")
     return created_user

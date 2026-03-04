@@ -27,11 +27,3 @@ def get_session():
 SessionDep = Annotated[Session, Depends(get_session)]
 
 
-
-"""
-with engine.connect() as conn:
-    result = conn.execute(text("SELECT 1")) #type: ignore
-    print("OK:", result.scalar()) #type: ignore
-
-engine = create_engine(DATABASE_URL)
-"""

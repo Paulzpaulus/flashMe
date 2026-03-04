@@ -1,15 +1,19 @@
 from typing import Optional
 from sqlmodel import SQLModel, Field
-from models.user import User
 
 # 1. Datenempfang (POST)
-class UserCreate(User):
-    hashed_password: str = Field(min_length=8, max_length=50)
+class UserCreate(SQLModel):
+    hashed_password: str
+    name: str
+    email: str = Field(...)
+
 
 # 2. Datenausgabe: Frontend  (GET)
 # vererbung email, name, kein pw
-class UserRead(User):
-    pass
+class UserRead(SQLModel):
+    id: int
+    name: str
+    email: str
 
 # 3. Daten-Update: (PUT) -> optional sonst crash
 class UserUpdate(SQLModel):

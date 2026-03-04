@@ -11,7 +11,7 @@ def seed():
 
         user = User(
             name="Paula",
-            email="paula@web.de",
+            email="test@web.de",
             hashed_password=hashed
         )
 
@@ -22,3 +22,4 @@ def seed():
 
 if __name__ == "__main__":
     seed()
+

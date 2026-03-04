@@ -1,22 +1,22 @@
 from sqlmodel import Session
-from models.user import  User
+from models.user import Users
 from typing import Optional
 
-def CRUD_get_all_users(session: Session) -> list[User]:
-    return session.exec(User) #type: ignore
+def CRUD_get_all_users(session: Session) -> list[Users]:
+    return session.exec(Users) #type: ignore
 
-def CRUD_get_user(session: Session, id: int) -> Optional[User]:
-    return session.get(User, id)
+def CRUD_get_user(session: Session, id: int) -> Optional[Users]:
+    return session.get(Users, id)
 
-def CRUD_create_user(session: Session, user: User) -> User:
+def CRUD_create_user(session: Session, user: Users) -> Users:
     session.add(user)
     session.commit()
     session.refresh(user)
     return user
 
 
-def CRUD_update_user(session: Session, id: int, new_email: Optional[str] = None, new_username: Optional[str] = None, new_password: Optional[str] = None) -> User:
-    user = session.get(User, id)
+def CRUD_update_user(session: Session, id: int, new_email: Optional[str] = None, new_username: Optional[str] = None, new_password: Optional[str] = None) -> Users:
+    user = session.get(Users, id)
     if not user:
         raise ValueError("User not found")
     if new_email:
@@ -28,8 +28,8 @@ def CRUD_update_user(session: Session, id: int, new_email: Optional[str] = None,
     session.commit()
     return user
 
-def CRUD_delete_user(session: Session, user_id: int) -> Optional[User]:
-    user = session.get(User, User.id)
+def CRUD_delete_user(session: Session, user_id: int) -> Optional[Users]:
+    user = session.get(Users, Users.id)
     if user:
         session.delete(user)
         session.commit()
