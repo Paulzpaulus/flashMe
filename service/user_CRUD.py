@@ -1,9 +1,10 @@
-from sqlmodel import Session
+from sqlmodel import Session, select
 from models.user import Users
 from typing import Optional
 
 def CRUD_get_all_users(session: Session) -> list[Users]:
-    return session.exec(Users) #type: ignore
+    statement = select(Users)
+    return list(session.exec(statement))
 
 def CRUD_get_user(session: Session, id: int) -> Optional[Users]:
     return session.get(Users, id)

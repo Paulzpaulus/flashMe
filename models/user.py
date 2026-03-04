@@ -8,5 +8,5 @@ class UserBase(SQLModel):
 
 
 class Users(UserBase, table=True):
-    id: int = Field(default=None, primary_key=True)
-    hashed_password: str = Field(nullable=True)  #niemals echtes pw
+    id: int | None = Field(default=None, primary_key=True)
+    hashed_password: str = Field(nullable=True)
