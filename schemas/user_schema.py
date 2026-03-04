@@ -3,10 +3,10 @@ from sqlmodel import SQLModel, Field
 
 # 1. Datenempfang (POST)
 class UserCreate(SQLModel):
-    hashed_password: str
-    name: str
+    name: str = Field(...)
     email: str = Field(...)
-
+    password: str = Field(...)
+    #hashed_password: str = Field(...)
 
 # 2. Datenausgabe: Frontend  (GET)
 # vererbung email, name, kein pw

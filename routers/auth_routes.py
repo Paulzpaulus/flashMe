@@ -10,12 +10,13 @@ from sqlmodel import Session, select
 from service.user_CRUD import CRUD_create_user
 from schemas.user_schema import UserCreate, UserRead
 from models.user import Users
+from typing import cast
 
 auth = APIRouter()
 
 @auth.post("/register", response_model=UserRead)
 async def register(userdata: UserCreate, session: Session = Depends(get_session)):
-    hashed_pw = hash_password(userdata.hashed_password)
+    hashed_pw = hash_password(userdata.password)
     user = Users(
         name=userdata.name,
         email=userdata.email,
@@ -43,7 +44,7 @@ async def login(
     if not user or not verify_password(password, user.hashed_password):
         raise HTTPException(status_code=401, detail="Unauthorized")
 
-    token = create_access_token(user.id)
+    token = create_access_token(cast(int,user.id))
     response.set_cookie(
         key="access_token",
         value=token,

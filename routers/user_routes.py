@@ -38,7 +38,6 @@ async def create_user(user: Users, session: Session = Depends(get_session)):
     return created_user
 
 
-
 #edit user
 @user_routes.put("/users/{user_id}")
 async def edit_user(user_id: int, session: Session = Depends(get_session)):
