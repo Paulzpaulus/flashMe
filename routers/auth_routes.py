@@ -9,6 +9,7 @@ from config.db import get_session
 from sqlmodel import Session, select
 from service.user_CRUD import CRUD_create_user
 from schemas.user_schema import UserCreate, UserRead
+from schemas.login_schema import LoginRequest
 from models.user import Users
 from typing import cast
 
@@ -29,22 +30,16 @@ async def register(userdata: UserCreate, session: Session = Depends(get_session)
 @auth.post("/login")
 async def login(
     response: Response,
-    request: Request,
+    credentials: LoginRequest,
     session: Session = Depends(get_session)
 ):
-    data = await request.json()
-    email = data.get("email")
-    password = data.get("password")
-    if not email or not password:
-        raise HTTPException(status_code=400, detail="Email and password required")
-
     user = session.exec(
-        select(Users).where(Users.email == email)
+        select(Users).where(Users.email == credentials.email)
     ).first()
-    if not user or not verify_password(password, user.hashed_password):
+    if not user or not verify_password(credentials.password, user.hashed_password):
         raise HTTPException(status_code=401, detail="Unauthorized")
 
-    token = create_access_token(cast(int,user.id))
+    token = create_access_token(cast(int, user.id))
     response.set_cookie(
         key="access_token",
         value=token,

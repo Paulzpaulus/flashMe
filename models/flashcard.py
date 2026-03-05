@@ -3,6 +3,8 @@ from datetime import timezone, datetime
 
 class Flashcard(SQLModel, table = True):
 
+    id: int | None = Field(default=None, primary_key=True)
+
     deck_id: int = Field(
         foreign_key="deck.id",
         nullable=False,

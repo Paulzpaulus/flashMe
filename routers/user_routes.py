@@ -9,9 +9,6 @@ from config.db import get_session
 
 user_routes = APIRouter()
 
-@user_routes.get("/")
-async def root():
-    return {"message": "Hello You"}
 
 # read ALL users
 @user_routes.get("/users")

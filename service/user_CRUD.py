@@ -25,7 +25,7 @@ def CRUD_update_user(session: Session, id: int, new_email: Optional[str] = None,
     if new_username:
         user.username = new_username
     if new_password:
-        user.password = new_password  # Hashing how....?
+        user.password = new_password
     session.commit()
     return user
 

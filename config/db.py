@@ -16,7 +16,7 @@ engine = create_engine(DATABASE_URL, echo=True)
 
 def create_db_and_tables():
     SQLModel.metadata.create_all(engine)
-    print("Done creating tables")
+    #print("Done creating tables")
 
 
 def get_session():
