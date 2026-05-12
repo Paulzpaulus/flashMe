@@ -1,6 +1,6 @@
 from sqlmodel import Session
 from config.db import engine
-from models.user import User
+from models.user import Users
 from pwdlib import PasswordHash
 
 def seed():
@@ -9,7 +9,7 @@ def seed():
     with Session(engine) as session:
         hashed = password_hash.hash("test123")
 
-        user = User(
+        user = Users(
             name="Paula",
             email="test@web.de",
             hashed_password=hashed
