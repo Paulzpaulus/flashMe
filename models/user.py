@@ -23,3 +23,4 @@ class Users(UserBase, table=True):
         primary_key=True
     )
     hashed_password: str = Field(nullable=False)
+    is_admin: bool = Field(default=False)

@@ -54,4 +54,10 @@ def get_current_user(request: Request, session: Session = Depends(get_session)) 
     return user
 
 
+def require_admin(current_user: Users = Depends(get_current_user)) -> Users:
+    if not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="Admin access required")
+    return current_user
+
+
 
