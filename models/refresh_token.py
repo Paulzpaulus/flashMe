@@ -1,5 +1,5 @@
 from sqlmodel import Field, SQLModel
-from datetime import datetime, timezone
+from datetime import datetime
 
 
 class RefreshToken(SQLModel, table=True):
