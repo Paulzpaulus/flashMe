@@ -41,7 +41,9 @@ def CRUD_update_deck(session: Session, deck_id: int, data: DeckUpdate) -> Deck:
     # Without this, Optional fields would overwrite DB values with None.
     updates = data.model_dump(exclude_unset=True)
     for key, value in updates.items():
-        setattr(deck, key, value)  # setattr(obj, "title", "New Title") is the same as obj.title = "New Title"
+        setattr(
+            deck, key, value
+        )  # setattr(obj, "title", "New Title") is the same as obj.title = "New Title"
 
     session.commit()
     session.refresh(deck)

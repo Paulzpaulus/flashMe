@@ -10,7 +10,6 @@ from routers.flashcard_routes import card_routes
 from routers.deck_routes import deck_routes
 
 
-
 app = FastAPI()
 app.include_router(user_routes)
 app.include_router(auth)
@@ -28,14 +27,7 @@ async def root():
     }
 
 
-
-@app.on_event("startup") # type: ignore
+@app.on_event("startup")  # type: ignore
 def on_startup():
     create_db_and_tables()
     print("database tables ready")
-
-
-
-
-
-
