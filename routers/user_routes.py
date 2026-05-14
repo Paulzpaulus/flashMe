@@ -4,8 +4,11 @@ from typing import cast
 
 from models.user import Users
 from service.user_CRUD import (
-    CRUD_get_all_users, CRUD_get_user,
-    CRUD_create_user, CRUD_update_user, CRUD_delete_user,
+    CRUD_get_all_users,
+    CRUD_get_user,
+    CRUD_create_user,
+    CRUD_update_user,
+    CRUD_delete_user,
 )
 from config.db import get_session
 from auth.auth import get_current_user, require_admin, hash_password
@@ -15,7 +18,9 @@ from schemas.user_schema import UserCreate, UserRead, UserUpdate
 user_routes = APIRouter(prefix="/users", tags=["Users"])
 
 
-@user_routes.get("/", response_model=list[UserRead], summary="List all users (admin only)")
+@user_routes.get(
+    "/", response_model=list[UserRead], summary="List all users (admin only)"
+)
 async def get_users(
     session: Session = Depends(get_session),
     _: Users = Depends(require_admin),
@@ -38,7 +43,9 @@ async def show_a_user(
     return user
 
 
-@user_routes.post("/", response_model=UserRead, status_code=201, summary="Create a user (admin only)")
+@user_routes.post(
+    "/", response_model=UserRead, status_code=201, summary="Create a user (admin only)"
+)
 async def create_user(
     data: UserCreate,
     session: Session = Depends(get_session),
@@ -49,7 +56,11 @@ async def create_user(
     return CRUD_create_user(session, user)
 
 
-@user_routes.put("/{user_id}", response_model=UserRead, summary="Update a user (own account or admin)")
+@user_routes.put(
+    "/{user_id}",
+    response_model=UserRead,
+    summary="Update a user (own account or admin)",
+)
 async def edit_user(
     user_id: int,
     data: UserUpdate,
@@ -57,7 +68,9 @@ async def edit_user(
     current_user: Users = Depends(get_current_user),
 ):
     if cast(int, current_user.id) != user_id and not current_user.is_admin:
-        raise HTTPException(status_code=403, detail="You can only edit your own account")
+        raise HTTPException(
+            status_code=403, detail="You can only edit your own account"
+        )
 
     updates: dict = {}
     if data.name is not None:
@@ -77,7 +90,9 @@ async def delete_user(
     current_user: Users = Depends(get_current_user),
 ):
     if cast(int, current_user.id) != user_id and not current_user.is_admin:
-        raise HTTPException(status_code=403, detail="You can only delete your own account")
+        raise HTTPException(
+            status_code=403, detail="You can only delete your own account"
+        )
     user = CRUD_delete_user(session, user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")

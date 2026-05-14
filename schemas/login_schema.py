@@ -1,5 +1,5 @@
+from sqlmodel import SQLModel
 
-from sqlmodel import SQLModel, Field
 
 class LoginRequest(SQLModel):
     email: str

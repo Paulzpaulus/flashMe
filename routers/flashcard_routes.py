@@ -3,8 +3,11 @@ from sqlmodel import Session
 from typing import cast
 from models.user import Users
 from service.flashcard_CRUD import (
-    CRUD_get_cards_by_deck, CRUD_get_card,
-    CRUD_create_card, CRUD_update_card, CRUD_delete_card,
+    CRUD_get_cards_by_deck,
+    CRUD_get_card,
+    CRUD_create_card,
+    CRUD_update_card,
+    CRUD_delete_card,
 )
 from service.deck_CRUD import CRUD_get_deck
 from auth.auth import get_current_user
@@ -14,7 +17,9 @@ from schemas.flashcard_schema import FlashcardCreate, FlashcardRead, FlashcardUp
 card_routes = APIRouter(prefix="/decks/{deck_id}/cards", tags=["Flashcards"])
 
 
-def _assert_deck_access(session: Session, deck_id: int, user_id: int, must_own: bool = False):
+def _assert_deck_access(
+    session: Session, deck_id: int, user_id: int, must_own: bool = False
+):
     # Helper used by every endpoint below so we don't repeat this logic.
     # must_own=True → the user must be the deck's owner (for write operations).
     # must_own=False → the user just needs to be able to see the deck (for reads).
@@ -28,7 +33,9 @@ def _assert_deck_access(session: Session, deck_id: int, user_id: int, must_own: 
     return deck
 
 
-@card_routes.get("/", response_model=list[FlashcardRead], summary="List all cards in a deck")
+@card_routes.get(
+    "/", response_model=list[FlashcardRead], summary="List all cards in a deck"
+)
 async def list_cards(
     deck_id: int,
     session: Session = Depends(get_session),
@@ -38,7 +45,9 @@ async def list_cards(
     return CRUD_get_cards_by_deck(session, deck_id)
 
 
-@card_routes.get("/{card_id}", response_model=FlashcardRead, summary="Get a single card")
+@card_routes.get(
+    "/{card_id}", response_model=FlashcardRead, summary="Get a single card"
+)
 async def get_card(
     deck_id: int,
     card_id: int,
@@ -54,7 +63,9 @@ async def get_card(
     return card
 
 
-@card_routes.post("/", response_model=FlashcardRead, status_code=201, summary="Add a card to a deck")
+@card_routes.post(
+    "/", response_model=FlashcardRead, status_code=201, summary="Add a card to a deck"
+)
 async def create_card(
     deck_id: int,
     data: FlashcardCreate,

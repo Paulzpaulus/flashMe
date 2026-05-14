@@ -8,12 +8,14 @@ class FlashcardCreate(SQLModel):
     # This is cleaner and prevents users from assigning cards to foreign decks.
     front: str = Field(min_length=1, max_length=1000)
     back: str = Field(min_length=1, max_length=1000)
+    ai_examples: str | None = Field(default=None, max_length=2000)
 
 
 class FlashcardRead(SQLModel):
     id: int
     front: str
     back: str
+    ai_examples: str | None
     deck_id: int
     created_at: datetime
 
@@ -21,3 +23,4 @@ class FlashcardRead(SQLModel):
 class FlashcardUpdate(SQLModel):
     front: Optional[str] = Field(default=None, min_length=1, max_length=1000)
     back: Optional[str] = Field(default=None, min_length=1, max_length=1000)
+    ai_examples: Optional[str] | None = Field(default=None, max_length=2000)
