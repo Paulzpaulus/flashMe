@@ -1,9 +1,8 @@
-from fastapi import HTTPException, APIRouter, Response, Depends
+from fastapi import HTTPException, APIRouter, Response, Depends, Request
 from auth.auth import (
     create_access_token,
     get_current_user,
     hash_password,
-    verify_password,
     verify_password,
     create_refresh_token,
 )
@@ -55,7 +54,7 @@ async def login(
         httponly=True,
         secure=True,
         samesite="lax",
-        max_age=1800,
+        max_age=604800,
     )
     return {"message": "Login successful"}
 
