@@ -14,6 +14,8 @@ class Flashcard(SQLModel, table=True):
 
     back: str = Field(min_length=1, max_length=1000)
 
+    ai_examples: str | None = Field(default=None)
+
     created_at: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc),
     )
