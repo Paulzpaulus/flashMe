@@ -7,13 +7,15 @@ from pwdlib import PasswordHash
 from sqlmodel import Session
 from config.db import get_session
 from models.user import Users
+from models.refresh_token import RefreshToken
+import secrets
 
 
 load_dotenv()
 SECRET_KEY = os.getenv("SECRET_KEY", "")
 ALGORITHM = os.getenv("ALGORITHM", "")
 ACCESS_TOKEN_EXPIRE_MINUTES = float(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
-
+REFRESH_TOKEN_EXPIRE_DAYS = 7
 
 def hash_password(password: str) -> str:
     password_hash = PasswordHash.recommended()
@@ -29,6 +31,15 @@ def create_access_token(user_id: int) -> str:
     to_encode: dict[str, str | int | float] = {"sub": str(user_id), "exp": expire.timestamp()}
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
+
+def create_refresh_token(user_id:int, session:Session) -> str:
+    token_str = secrets.token_urlsafe(32)
+    expires= datetime.now(timezone.utc) + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
+    refresh_token = RefreshToken(token=token_str, user_id=user_id, expires_at=expires)
+    session.add(refresh_token)
+    session.commit()
+    return token_str
+
 
 
 def get_token_from_cookie(request: Request) -> str:

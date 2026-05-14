@@ -5,6 +5,7 @@ from routers.auth_routes import auth
 import models.user
 import models.deck
 import models.flashcard
+import models.refresh_token
 from routers.flashcard_routes import card_routes
 from routers.deck_routes import deck_routes
 
