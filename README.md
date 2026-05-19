@@ -148,6 +148,7 @@ Once running, visit [http://localhost:8000/docs](http://localhost:8000/docs) for
 
 FlashMe uses the SM-2 algorithm, developed by Piotr Wozniak in 1987 for his SuperMemo software.
 It is the foundation of modern spaced repetition tools like Anki.
+https://wwww.supermemo.com/en/blog/application-of-a-computer-to-improve-the-results-obtained-in-working-with-the-supermemo-method
 
 ### Concept
 

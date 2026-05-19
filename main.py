@@ -4,14 +4,14 @@ from routers.user_routes import user_routes
 from routers.auth_routes import auth
 from routers.flashcard_routes import card_routes
 from routers.deck_routes import deck_routes
-
+from routers.card_progress_routes import progress_routes
 
 app = FastAPI()
 app.include_router(user_routes)
 app.include_router(auth)
 app.include_router(deck_routes)
 app.include_router(card_routes)
-
+app.include_router(progress_routes)
 
 @app.get("/", tags=["Health"])
 async def root():
