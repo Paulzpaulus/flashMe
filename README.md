@@ -58,7 +58,9 @@ flashMe/
 ├── service/                   # Database CRUD logic
 │   ├── user_CRUD.py
 │   ├── deck_CRUD.py
-│   └── flashcard_CRUD.py
+│   ├── flashcard_CRUD.py
+│   ├── saved_deck_CRUD.py
+│   └── card_progress_CRUD.py
 └── documentation/             # Project docs, flowcharts, checklists
 ```
 
@@ -141,6 +143,47 @@ ACCESS_TOKEN_EXPIRE_MINUTES=30
 ### Interactive API Docs
 
 Once running, visit [http://localhost:8000/docs](http://localhost:8000/docs) for the auto-generated Swagger UI.
+
+## SM-2 Spaced Repetition Algorithm
+
+FlashMe uses the SM-2 algorithm, developed by Piotr Wozniak in 1987 for his SuperMemo software.
+It is the foundation of modern spaced repetition tools like Anki.
+
+### Concept
+
+The core idea: review a card just before you forget it. The better you know a card, the longer you wait before seeing it again. This makes learning more efficient than reviewing everything every day.
+
+### How It Works
+
+After each card review, the user rates their answer from **1** (complete blackout) to **5** (perfect recall).
+Based on this rating, two values are updated per card per user:
+
+**ease_factor** — a multiplier representing how well the user knows the card. Starts at `2.5`. Increases with high ratings, decreases with low ratings. Minimum value: `1.3`.
+
+**interval** — how many days until the next review:
+| Situation | Interval |
+|---|---|
+| Rating < 3 (not learned) | Reset to 1 day |
+| First successful review | 1 day |
+| Second successful review | 6 days |
+| Every review after that | `previous interval × ease_factor` |
+
+**next_review** = today + interval days. Cards are only shown when `next_review <= today`.
+
+### Formula
+
+```
+new_ease_factor = ease_factor + (0.1 - (5 - rating) * (0.08 + (5 - rating) * 0.02))
+```
+
+The constants (`0.1`, `0.08`, `0.02`) are Wozniak's empirically tested values — they are not arbitrary, but derived from years of personal learning data.
+
+### Study Endpoints
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/decks/{deck_id}/study` | Returns all cards due for review today |
+| POST | `/decks/{deck_id}/cards/{card_id}/review` | Submit a rating (1–5), updates CardProgress |
 
 ## Security Design
 

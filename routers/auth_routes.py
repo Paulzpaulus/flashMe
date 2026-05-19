@@ -111,7 +111,7 @@ async def refresh_auth(
         secure=True,
         samesite="lax",
         max_age=604800,
-     )
+    )
     return {"message": "Token refreshed"}
 
 
