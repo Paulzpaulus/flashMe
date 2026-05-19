@@ -103,6 +103,15 @@ async def refresh_auth(
         samesite="lax",
         max_age=1800,
     )
+    new_refresh_token = create_refresh_token(db_token.user_id, session)
+    response.set_cookie(
+        key="refresh_token",
+        value=new_refresh_token,
+        httponly=True,
+        secure=True,
+        samesite="lax",
+        max_age=604800,
+     )
     return {"message": "Token refreshed"}
 
 
