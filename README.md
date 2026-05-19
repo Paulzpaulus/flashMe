@@ -1,16 +1,18 @@
 # FlashMe 🃏
 
-A self-hosted flashcard learning API — create decks, add cards, share publicly.
+A self-hosted flashcard learning API — create decks, add cards, share publicly, and study with spaced repetition.
 Built as a learning project at Masterschool.
 
 ## What It Does
 
 FlashMe is a REST API backend for a flashcard application, similar to Anki.
 Users can:
-- Register and authenticate
+- Register and authenticate securely
 - Create private or public flashcard decks
-- Add question/answer cards to any deck they own
+- Add question/answer cards with optional AI-generated examples
 - Browse all public decks without an account
+- Save public decks to their own collection
+- Study cards using the SM-2 spaced repetition algorithm (in progress)
 
 ## Tech Stack
 
@@ -19,47 +21,66 @@ Users can:
 | Framework | FastAPI (Python 3.12) |
 | ORM | SQLModel (SQLAlchemy + Pydantic) |
 | Database | PostgreSQL |
-| Auth | JWT via httponly Cookie |
-| Password Hashing | pwdlib |
+| Auth | JWT Access Token + Refresh Token via httponly Cookies |
+| Password Hashing | pwdlib (bcrypt) |
 | Server | uvicorn |
+| Linting/Formatting | ruff |
+| Type Checking | mypy |
 
 ## Project Structure
 
 ```
 flashMe/
-├── main.py                  # App entry point, router registration
+├── main.py                    # App entry point, router registration
 ├── config/
-│   └── db.py                # DB engine, session dependency
+│   └── db.py                  # DB engine, session dependency
 ├── auth/
-│   └── auth.py              # JWT creation/validation, password hashing
-├── models/                  # Database table definitions
+│   └── auth.py                # JWT, password hashing, auth dependencies
+├── models/                    # Database table definitions
 │   ├── user.py
 │   ├── deck.py
-│   └── flashcard.py
-├── schemas/                 # API request/response validation
+│   ├── flashcard.py
+│   ├── refresh_token.py
+│   ├── saved_deck.py
+│   └── card_progress.py
+├── schemas/                   # API request/response validation
 │   ├── user_schema.py
 │   ├── deck_schema.py
 │   ├── flashcard_schema.py
-│   └── login_schema.py
-├── routers/                 # HTTP endpoints
+│   ├── login_schema.py
+│   ├── saved_deck_schema.py
+│   └── card_progress_schema.py
+├── routers/                   # HTTP endpoints
 │   ├── auth_routes.py
 │   ├── user_routes.py
 │   ├── deck_routes.py
 │   └── flashcard_routes.py
-└── service/                 # Database CRUD logic
-    ├── user_CRUD.py
-    ├── deck_CRUD.py
-    └── flashcard_CRUD.py
+├── service/                   # Database CRUD logic
+│   ├── user_CRUD.py
+│   ├── deck_CRUD.py
+│   └── flashcard_CRUD.py
+└── documentation/             # Project docs, flowcharts, checklists
 ```
 
 ## API Overview
 
 ### Auth
-| Method | Endpoint | Description |
-|---|---|---|
-| POST | `/register` | Create a new account |
-| POST | `/login` | Login, sets httponly JWT cookie |
-| GET | `/me` | Get current user info |
+| Method | Endpoint | Auth | Description |
+|---|---|---|---|
+| POST | `/register` | No | Create a new account |
+| POST | `/login` | No | Login, sets httponly JWT + Refresh Token cookies |
+| POST | `/logout` | Yes | Logout, deletes tokens |
+| POST | `/refresh` | No | Get new access token via refresh token |
+| GET | `/me` | Yes | Get current user info |
+
+### Users
+| Method | Endpoint | Auth | Description |
+|---|---|---|---|
+| GET | `/users/` | Admin | List all users |
+| POST | `/users/` | Admin | Create a user |
+| GET | `/users/{id}` | Yes | Get a user by ID |
+| PUT | `/users/{id}` | Yes | Update own account (or admin) |
+| DELETE | `/users/{id}` | Yes | Delete own account (or admin) |
 
 ### Decks
 | Method | Endpoint | Auth | Description |
@@ -90,7 +111,7 @@ flashMe/
 
 ```bash
 # Clone and enter the project
-git clone <repo-url>
+git clone git@github.com:Paulzpaulus/flashMe.git
 cd flashMe
 
 # Create and activate a virtual environment
@@ -102,7 +123,7 @@ pip install -r requirements.txt
 
 # Create a .env file
 cp .env.example .env
-# Fill in DATABASE_URL, SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
+# Fill in the values (see Environment Variables below)
 
 # Start the server
 uvicorn main:app --reload
@@ -119,24 +140,27 @@ ACCESS_TOKEN_EXPIRE_MINUTES=30
 
 ### Interactive API Docs
 
-Once running, visit [http://localhost:8000/docs](http://localhost:8000/docs) for the
-auto-generated Swagger UI.
+Once running, visit [http://localhost:8000/docs](http://localhost:8000/docs) for the auto-generated Swagger UI.
 
 ## Security Design
 
 - Passwords are never stored in plain text (bcrypt via pwdlib)
-- JWT tokens are stored in httponly cookies — not accessible to JavaScript
-- `owner_id` on decks is always taken from the auth token, never from the request body
+- JWT Access Tokens expire after 30 minutes
+- Refresh Tokens are stored in the database — revoked on logout
+- Refresh Token Rotation — a new refresh token is issued on every `/refresh` call
+- All tokens are stored in httponly cookies — not accessible to JavaScript
+- `owner_id` is always taken from the auth token, never from the request body
 - Private decks are only accessible to their owner
-- Card write-access requires deck ownership
+- Admin-only routes are protected via `require_admin` dependency
 
 ## Roadmap
 
-- [ ] Fix user CRUD bugs
-- [ ] Add a spaced repetition study mode (SM-2 algorithm)
-- [ ] Build a frontend (React / Next.js)
-- [ ] Add test suite (pytest)
-- [ ] Dockerize the project
+- [ ] SavedDeck endpoints (Fork/Save feature)
+- [ ] SM-2 spaced repetition study mode
+- [ ] Frontend (Phase 2 of this project)
+- [ ] Test suite (pytest)
+- [ ] Docker setup
+- [ ] `.env.example` file
 
 ## License
 
