@@ -22,7 +22,7 @@ def get_or_create_progress(session: Session, user_id, card_id) -> CardProgress:
 def get_due_cards(session: Session, user_id, deck_id) -> list[Flashcard]:
     """returns all cards where next_review <= today"""
     cards = session.exec(select(Flashcard).where(Flashcard.deck_id == deck_id)).all()
-    now = datetime.now(timezone.utc)  # timezone missmatch possible ?
+    now = datetime.now(timezone.utc)
     return [
         card
         for card in cards
