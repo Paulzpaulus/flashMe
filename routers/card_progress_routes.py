@@ -34,3 +34,7 @@ async def submit_review(
     current_user: Users = Depends(get_current_user),
 ):
     return apply_sm2(session, cast(int, current_user.id), card_id, data.rating)
+
+
+
+@progress_routes.post("/card")
