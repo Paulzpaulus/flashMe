@@ -33,12 +33,13 @@ async def get_study_cards(
     return get_due_cards(session, cast(int, current_user.id), deck_id, include_new)
 
 
-@progress_routes.get("/cards/status", response_model=list[CardWithStatus])
+@progress_routes.get("/study/status", response_model=list[CardWithStatus])
 async def get_cards_status(
     deck_id: int,
     session: Session = Depends(get_session),
     current_user: Users = Depends(get_current_user),
 ):
+    print(f"DEBUUUUUUUUUG{deck_id}")
     return get_cards_with_status(session, cast(int, current_user.id), deck_id)
 
 

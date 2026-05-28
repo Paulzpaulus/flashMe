@@ -1,7 +1,8 @@
-from sqlmodel import Session, select
+from sqlmodel import Session, select, col
 from datetime import datetime, timezone, timedelta
 from models.card_progress import CardProgress
 from models.flashcard import Flashcard
+from typing import cast
 
 
 def get_or_create_progress(
@@ -92,7 +93,7 @@ def reset_deck_progress(session: Session, user_id: int, deck_id: int) -> int:
     entries = session.exec(
         select(CardProgress)
         .where(CardProgress.user_id == user_id)
-        .where(CardProgress.card_id.in_(card_ids))
+        .where(col(CardProgress.card_id).in_(card_ids))
     ).all()
     for entry in entries:
         session.delete(entry)
@@ -119,7 +120,7 @@ def get_cards_with_status(session: Session, user_id: int, deck_id: int) -> list[
             status = "scheduled"
         result.append(
             {
-                "id": card.id,
+                "id": cast(int,card.id),
                 "front": card.front,
                 "back": card.back,
                 "deck_id": card.deck_id,
