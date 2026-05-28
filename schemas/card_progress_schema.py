@@ -17,3 +17,15 @@ class CardProgressUpdate(SQLModel):
     interval: Optional[int] = None
     repetitions: Optional[int] = None
     next_review: Optional[datetime] = Field(default=None)
+
+
+class CardWithStatus(SQLModel):
+    id: int
+    front: str
+    back: str
+    deck_id: int
+    status: str
+    interval: Optional[int] = None
+    next_review: Optional[datetime] = None
+    repetitions: Optional[int] = None
+    ease_factor: Optional[float] = None

@@ -4,7 +4,9 @@ from models.card_progress import CardProgress
 from models.flashcard import Flashcard
 
 
-def get_or_create_progress(session: Session, user_id, card_id) -> CardProgress:
+def get_or_create_progress(
+    session: Session, user_id: int, card_id: int
+) -> CardProgress:
     """gets or creates CardProgess"""
     progress = session.exec(
         select(CardProgress)
@@ -19,25 +21,30 @@ def get_or_create_progress(session: Session, user_id, card_id) -> CardProgress:
     return progress
 
 
-def get_due_cards(session: Session, user_id, deck_id) -> list[Flashcard]:
-    """returns all cards where next_review <= today"""
+def get_due_cards(
+    session: Session, user_id: int, deck_id: int, include_new: bool = False
+) -> list[Flashcard]:
+    """returns cards due for review, optionally including cards never studied"""
     cards = session.exec(select(Flashcard).where(Flashcard.deck_id == deck_id)).all()
     now = datetime.now(timezone.utc)
-    return [
-        card
-        for card in cards
-        if not (
-            progress := session.exec(
-                select(CardProgress)
-                .where(CardProgress.user_id == user_id)
-                .where(CardProgress.card_id == card.id)
-            ).first()
-        )
-        or progress.next_review <= now
-    ]
+    result = []
+    for card in cards:
+        progress = session.exec(
+            select(CardProgress)
+            .where(CardProgress.user_id == user_id)
+            .where(CardProgress.card_id == card.id)
+        ).first()
+        if not progress:
+            if include_new:
+                result.append(card)
+        elif progress.next_review <= now:
+            result.append(card)
+    return result
 
 
-def apply_sm2(session: Session, user_id, card_id, rating) -> CardProgress:
+def apply_sm2(
+    session: Session, user_id: int, card_id: int, rating: int
+) -> CardProgress:
     """apply SM-2 logic, update CardProgess"""
     progress = get_or_create_progress(session, user_id, card_id)
     progress.ease_factor += 0.1 - (5 - rating) * (0.08 + (5 - rating) * 0.02)
@@ -62,3 +69,65 @@ def apply_sm2(session: Session, user_id, card_id, rating) -> CardProgress:
     session.commit()
     session.refresh(progress)
     return progress
+
+
+def reset_card_progress(session: Session, user_id: int, card_id: int) -> bool:
+    """deletes CardProgress for a single card, resetting it to new"""
+    progress = session.exec(
+        select(CardProgress)
+        .where(CardProgress.user_id == user_id)
+        .where(CardProgress.card_id == card_id)
+    ).first()
+    if not progress:
+        return False
+    session.delete(progress)
+    session.commit()
+    return True
+
+
+def reset_deck_progress(session: Session, user_id: int, deck_id: int) -> int:
+    """deletes all CardProgress for a deck, returns number of deleted entries"""
+    cards = session.exec(select(Flashcard).where(Flashcard.deck_id == deck_id)).all()
+    card_ids = [card.id for card in cards if card.id is not None]
+    entries = session.exec(
+        select(CardProgress)
+        .where(CardProgress.user_id == user_id)
+        .where(CardProgress.card_id.in_(card_ids))
+    ).all()
+    for entry in entries:
+        session.delete(entry)
+    session.commit()
+    return len(entries)
+
+
+def get_cards_with_status(session: Session, user_id: int, deck_id: int) -> list[dict]:
+    """returns each card with its review status for the given user"""
+    cards = session.exec(select(Flashcard).where(Flashcard.deck_id == deck_id)).all()
+    now = datetime.now(timezone.utc)
+    result = []
+    for card in cards:
+        progress = session.exec(
+            select(CardProgress)
+            .where(CardProgress.user_id == user_id)
+            .where(CardProgress.card_id == card.id)
+        ).first()
+        if not progress:
+            status = "new"
+        elif progress.next_review <= now:
+            status = "due"
+        else:
+            status = "scheduled"
+        result.append(
+            {
+                "id": card.id,
+                "front": card.front,
+                "back": card.back,
+                "deck_id": card.deck_id,
+                "status": status,
+                "interval": progress.interval if progress else None,
+                "next_review": progress.next_review if progress else None,
+                "repetitions": progress.repetitions if progress else None,
+                "ease_factor": progress.ease_factor if progress else None,
+            }
+        )
+    return result

@@ -1,19 +1,18 @@
 from sqlmodel import Session, select
 from models.saved_deck import SavedDeck
-from models.deck import Deck
 from service.deck_CRUD import CRUD_get_deck
 
 
-def CRUD_save_deck(session: Session, user_id, deck_id) -> SavedDeck | None :
+def CRUD_save_deck(session: Session, user_id: int, deck_id: int) -> SavedDeck | None:
     deck = CRUD_get_deck(session, deck_id)
     if not deck:
         return None
     if not deck.is_public:
         return None
     existing = session.exec(
-    select(SavedDeck)
-    .where(SavedDeck.user_id == user_id)
-    .where(SavedDeck.deck_id == deck_id)
+        select(SavedDeck)
+        .where(SavedDeck.user_id == user_id)
+        .where(SavedDeck.deck_id == deck_id)
     ).first()
     if existing:
         return existing
@@ -23,15 +22,19 @@ def CRUD_save_deck(session: Session, user_id, deck_id) -> SavedDeck | None :
     session.refresh(saved)
     return saved
 
-def CRUD_get_saved_decks(session:Session, user_id) -> list[SavedDeck]:
-    return list(session.exec(select(SavedDeck).where(SavedDeck.user_id == user_id)).all())
 
-# get_saved_decks(session, user_id) -> list[SavedDeck]
-# select all SavedDeck rows where user_id == user_id
-# return list
+def CRUD_get_saved_decks(session: Session, user_id: int) -> list[SavedDeck]:
+    return list(session.exec(select(SavedDeck).where(SavedDeck.user_id == user_id)))
 
 
-# unsave_deck(session, user_id, deck_id) -> bool
-# find SavedDeck where user_id == user_id AND deck_id == deck_id
-# if not found → return False
-# delete, commit → return True
+def CRUD_unsave_deck(session: Session, user_id: int, deck_id: int) -> bool:
+    saved = session.exec(
+        select(SavedDeck)
+        .where(SavedDeck.user_id == user_id)
+        .where(SavedDeck.deck_id == deck_id)
+    ).first()
+    if not saved:
+        return False
+    session.delete(saved)
+    session.commit()
+    return True
