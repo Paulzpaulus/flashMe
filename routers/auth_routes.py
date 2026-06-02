@@ -1,3 +1,4 @@
+import os
 from fastapi import HTTPException, APIRouter, Response, Depends, Request
 from auth.auth import (
     create_access_token,
@@ -16,7 +17,9 @@ from models.user import Users
 from typing import cast
 from datetime import datetime, timezone
 
-auth = APIRouter()
+IS_DEV = os.getenv("ENV", "production") == "development"
+
+auth = APIRouter(tags=["Auth"])
 
 
 @auth.post("/register", response_model=UserRead)
@@ -44,7 +47,7 @@ async def login(
         key="access_token",
         value=access_token,
         httponly=True,
-        secure=True,
+        secure=not IS_DEV,
         samesite="lax",
         max_age=1800,
     )
@@ -52,7 +55,7 @@ async def login(
         key="refresh_token",
         value=refresh_token,
         httponly=True,
-        secure=True,
+        secure=not IS_DEV,
         samesite="lax",
         max_age=604800,
     )
@@ -99,7 +102,7 @@ async def refresh_auth(
         key="access_token",
         value=new_access_token,
         httponly=True,
-        secure=True,
+        secure=not IS_DEV,
         samesite="lax",
         max_age=1800,
     )
@@ -108,7 +111,7 @@ async def refresh_auth(
         key="refresh_token",
         value=new_refresh_token,
         httponly=True,
-        secure=True,
+        secure=not IS_DEV,
         samesite="lax",
         max_age=604800,
     )

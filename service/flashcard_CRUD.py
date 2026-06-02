@@ -2,6 +2,7 @@ from sqlmodel import Session, select
 from models.flashcard import Flashcard
 from schemas.flashcard_schema import FlashcardCreate, FlashcardUpdate
 from typing import Optional
+from exceptions import ResourceNotFoundError
 
 
 def CRUD_get_cards_by_deck(session: Session, deck_id: int) -> list[Flashcard]:
@@ -29,7 +30,7 @@ def CRUD_update_card(
 ) -> Flashcard:
     card = session.get(Flashcard, card_id)
     if not card:
-        raise ValueError("Flashcard not found")
+        raise ResourceNotFoundError("Flashcard not found")
 
     # exclude_unset=True so partial updates don't overwrite unchanged fields.
     updates = data.model_dump(exclude_unset=True)

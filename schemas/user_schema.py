@@ -7,7 +7,7 @@ class UserCreate(SQLModel):
     name: str = Field(...)
     email: str = Field(...)
     password: str = Field(...)
-    # hashed_password: str = Field(...)
+    is_admin: bool = False
 
 
 # 2. Datenausgabe: Frontend  (GET)

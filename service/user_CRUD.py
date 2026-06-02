@@ -1,6 +1,8 @@
 from sqlmodel import Session, select
+from sqlalchemy.exc import IntegrityError
 from models.user import Users
 from typing import Optional
+from exceptions import DuplicateEntryError, ResourceNotFoundError
 
 
 def CRUD_get_all_users(session: Session) -> list[Users]:
@@ -13,7 +15,11 @@ def CRUD_get_user(session: Session, user_id: int) -> Optional[Users]:
 
 def CRUD_create_user(session: Session, user: Users) -> Users:
     session.add(user)
-    session.commit()
+    try:
+        session.commit()
+    except IntegrityError:
+        session.rollback()
+        raise DuplicateEntryError("Email already exists")
     session.refresh(user)
     return user
 
@@ -21,7 +27,7 @@ def CRUD_create_user(session: Session, user: Users) -> Users:
 def CRUD_update_user(session: Session, user_id: int, updates: dict) -> Users:
     user = session.get(Users, user_id)
     if not user:
-        raise ValueError("User not found")
+        raise ResourceNotFoundError("User not found")
     for key, value in updates.items():
         setattr(user, key, value)
     session.commit()

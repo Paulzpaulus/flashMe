@@ -16,6 +16,7 @@ def seed():
             name="Paula",
             email="test@web.de",
             hashed_password=password_hash.hash("test123"),
+            is_admin= True,
         )
         session.add(paula)
         session.flush()

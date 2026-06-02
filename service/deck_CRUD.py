@@ -2,6 +2,7 @@ from sqlmodel import Session, select
 from models.deck import Deck
 from schemas.deck_schema import DeckCreate, DeckUpdate
 from typing import Optional
+from exceptions import ResourceNotFoundError
 
 
 def CRUD_get_all_decks(session: Session, owner_id: int) -> list[Deck]:
@@ -35,7 +36,7 @@ def CRUD_create_deck(session: Session, data: DeckCreate, owner_id: int) -> Deck:
 def CRUD_update_deck(session: Session, deck_id: int, data: DeckUpdate) -> Deck:
     deck = session.get(Deck, deck_id)
     if not deck:
-        raise ValueError("Deck not found")
+        raise ResourceNotFoundError("Deck not found")
 
     # exclude_unset=True → only includes fields the caller actually sent.
     # Without this, Optional fields would overwrite DB values with None.

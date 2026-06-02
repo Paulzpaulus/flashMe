@@ -49,10 +49,10 @@ async def show_a_user(
 async def create_user(
     data: UserCreate,
     session: Session = Depends(get_session),
-    _: Users = Depends(require_admin),
+    _: Users = Depends(require_admin), ####HIER
 ):
     hashed_pw = hash_password(data.password)
-    user = Users(name=data.name, email=data.email, hashed_password=hashed_pw)
+    user = Users(name=data.name, email=data.email, hashed_password=hashed_pw, is_admin=data.is_admin)
     return CRUD_create_user(session, user)
 
 
