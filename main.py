@@ -19,12 +19,16 @@ app.include_router(saved_deck_routes)
 
 
 @app.exception_handler(DuplicateEntryError)
-async def duplicate_entry_handler(request: Request, exc: DuplicateEntryError) -> JSONResponse:
+async def duplicate_entry_handler(
+    request: Request, exc: DuplicateEntryError
+) -> JSONResponse:
     return JSONResponse(status_code=409, content={"detail": exc.detail})
 
 
 @app.exception_handler(ResourceNotFoundError)
-async def resource_not_found_handler(request: Request, exc: ResourceNotFoundError) -> JSONResponse:
+async def resource_not_found_handler(
+    request: Request, exc: ResourceNotFoundError
+) -> JSONResponse:
     return JSONResponse(status_code=404, content={"detail": exc.detail})
 
 

@@ -9,7 +9,8 @@ from service.flashcard_CRUD import (
     CRUD_update_card,
     CRUD_delete_card,
 )
-from service.deck_CRUD import CRUD_get_deck
+from service.deck_CRUD import CRUD_get_deck, CRUD_get_all_decks, CRUD_create_deck
+from schemas.deck_schema import DeckCreate
 from auth.auth import get_current_user
 from config.db import get_session
 from schemas.flashcard_schema import FlashcardCreate, FlashcardRead, FlashcardUpdate
@@ -72,9 +73,20 @@ async def create_card(
     session: Session = Depends(get_session),
     current_user: Users = Depends(get_current_user),  # 🔒
 ):
-    # must_own=True → only the deck owner can add cards
-    _assert_deck_access(session, deck_id, cast(int, current_user.id), must_own=True)
-    return CRUD_create_card(session, data, deck_id)
+    user_id = cast(int, current_user.id)
+    deck = CRUD_get_deck(session, deck_id)
+
+    if not deck:
+        deck_count = len(CRUD_get_all_decks(session, user_id))
+        deck = CRUD_create_deck(
+            session,
+            DeckCreate(title=f"Untitled Deck {deck_count + 1}"),
+            user_id,
+        )
+    elif deck.owner_id != user_id:
+        raise HTTPException(status_code=403, detail="You don't own this deck")
+
+    return CRUD_create_card(session, data, cast(int, deck.id))
 
 
 @card_routes.put("/{card_id}", response_model=FlashcardRead, summary="Update a card")

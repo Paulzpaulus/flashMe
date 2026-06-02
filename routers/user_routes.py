@@ -12,7 +12,7 @@ from service.user_CRUD import (
 )
 from config.db import get_session
 from auth.auth import get_current_user, require_admin, hash_password
-from schemas.user_schema import UserCreate, UserRead, UserUpdate
+from schemas.user_schema import UserAdminCreate, UserRead, UserUpdate
 
 
 user_routes = APIRouter(prefix="/users", tags=["Users"])
@@ -47,12 +47,17 @@ async def show_a_user(
     "/", response_model=UserRead, status_code=201, summary="Create a user (admin only)"
 )
 async def create_user(
-    data: UserCreate,
+    data: UserAdminCreate,
     session: Session = Depends(get_session),
-    _: Users = Depends(require_admin), ####HIER
+    _: Users = Depends(require_admin),  ####HIER
 ):
     hashed_pw = hash_password(data.password)
-    user = Users(name=data.name, email=data.email, hashed_password=hashed_pw, is_admin=data.is_admin)
+    user = Users(
+        name=data.name,
+        email=data.email,
+        hashed_password=hashed_pw,
+        is_admin=data.is_admin,
+    )
     return CRUD_create_user(session, user)
 
 

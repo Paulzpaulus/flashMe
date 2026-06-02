@@ -7,7 +7,6 @@ from alembic import context
 import os
 from dotenv import load_dotenv
 from sqlmodel import SQLModel
-import models.user, models.deck, models.flashcard, models.refresh_token, models.saved_deck, models.card_progress
 
 load_dotenv()
 

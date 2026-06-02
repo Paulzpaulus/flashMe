@@ -120,7 +120,7 @@ def get_cards_with_status(session: Session, user_id: int, deck_id: int) -> list[
             status = "scheduled"
         result.append(
             {
-                "id": cast(int,card.id),
+                "id": cast(int, card.id),
                 "front": card.front,
                 "back": card.back,
                 "deck_id": card.deck_id,

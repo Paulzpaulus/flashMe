@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, SQLModel
 from typing import cast
-from datetime import datetime, timezone
 from models.user import Users
 from service.card_progress_CRUD import (
     get_due_cards,
@@ -39,7 +38,6 @@ async def get_cards_status(
     session: Session = Depends(get_session),
     current_user: Users = Depends(get_current_user),
 ):
-    print(f"DEBUUUUUUUUUG{deck_id}")
     return get_cards_with_status(session, cast(int, current_user.id), deck_id)
 
 
