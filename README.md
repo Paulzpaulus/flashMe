@@ -9,10 +9,10 @@ FlashMe is a REST API backend for a flashcard application, similar to Anki.
 Users can:
 - Register and authenticate securely
 - Create private or public flashcard decks
-- Add question/answer cards with optional AI-generated examples
+- Add question/answer cards (AI-generated examples planned, not yet implemented)
 - Browse all public decks without an account
 - Save public decks to their own collection
-- Study cards using the SM-2 spaced repetition algorithm (in progress)
+- Study cards using the SM-2 spaced repetition algorithm
 
 ## Tech Stack
 
@@ -189,7 +189,7 @@ Once running, visit [http://localhost:8000/docs](http://localhost:8000/docs) for
 
 FlashMe uses the SM-2 algorithm, developed by Piotr Wozniak in 1987 for his SuperMemo software.
 It is the foundation of modern spaced repetition tools like Anki.
-https://wwww.supermemo.com/en/blog/application-of-a-computer-to-improve-the-results-obtained-in-working-with-the-supermemo-method
+https://www.supermemo.com/en/blog/application-of-a-computer-to-improve-the-results-obtained-in-working-with-the-supermemo-method
 
 ### Concept
 
@@ -219,13 +219,6 @@ new_ease_factor = ease_factor + (0.1 - (5 - rating) * (0.08 + (5 - rating) * 0.0
 ```
 
 The constants (`0.1`, `0.08`, `0.02`) are Wozniak's empirically tested values — they are not arbitrary, but derived from years of personal learning data.
-
-### Study Endpoints
-
-| Method | Endpoint | Description |
-|---|---|---|
-| GET | `/decks/{deck_id}/study` | Returns all cards due for review today |
-| POST | `/decks/{deck_id}/cards/{card_id}/review` | Submit a rating (1–5), updates CardProgress |
 
 ## Security Design
 
