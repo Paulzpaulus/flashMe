@@ -242,16 +242,7 @@ The constants (`0.1`, `0.08`, `0.02`) are Wozniak's empirically tested values â€
 - Email format is validated at the schema level via a regex pattern
 - DB integrity errors are caught globally and returned as clean 409 / 404 responses
 
-## Roadmap
 
-- [x] SavedDeck endpoints (Fork/Save feature)
-- [x] SM-2 spaced repetition study mode
-- [x] Global exception handling (409 / 404)
-- [x] Admin bootstrap script (`create_admin.py`)
-- [ ] Frontend (Phase 2 of this project)
-- [ ] Test suite (pytest)
-- [ ] Docker setup
-- [ ] `.env.example` file
 
 ## License
 
