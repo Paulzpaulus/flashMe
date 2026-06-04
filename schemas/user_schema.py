@@ -1,30 +1,13 @@
-from typing import Optional, Annotated
-from pydantic import AfterValidator
+from typing import Optional
 from sqlmodel import SQLModel, Field
 
-
-def _check_email(v: str) -> str:
-    if "@" not in v:
-        raise ValueError("Invalid email address")
-    local, _, domain = v.partition("@")
-    if (
-        not local
-        or not domain
-        or "." not in domain
-        or domain.startswith(".")
-        or domain.endswith(".")
-    ):
-        raise ValueError("Invalid email address")
-    return v.lower()
-
-
-Email = Annotated[str, AfterValidator(_check_email)]
+EMAIL_REGEX = r"^[^@\s]+@[^@\s]+\.[^@\s]+$"
 
 
 # 1. Datenempfang (POST)
 class UserCreate(SQLModel):
     name: str = Field(...)
-    email: Email
+    email: str = Field(pattern=EMAIL_REGEX)
     password: str = Field(...)
 
 
@@ -44,7 +27,7 @@ class UserRead(SQLModel):
 # password kommt als Klartext rein, wird im Router gehasht
 class UserUpdate(SQLModel):
     name: Optional[str] = Field(default=None, min_length=3, max_length=10)
-    email: Optional[Email] = None
+    email: Optional[str] = Field(default=None, pattern=EMAIL_REGEX)
     password: Optional[str] = Field(default=None, min_length=8)
 
 

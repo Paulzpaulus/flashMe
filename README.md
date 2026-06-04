@@ -22,8 +22,9 @@ Users can:
 | ORM | SQLModel (SQLAlchemy + Pydantic) |
 | Database | PostgreSQL |
 | Auth | JWT Access Token + Refresh Token via httponly Cookies |
-| Password Hashing | pwdlib (bcrypt) |
+| Password Hashing | pwdlib (Argon2id) |
 | Server | uvicorn |
+| Migrations | Alembic |
 | Linting/Formatting | ruff |
 | Type Checking | mypy |
 
@@ -31,7 +32,10 @@ Users can:
 
 ```
 flashMe/
-├── main.py                    # App entry point, router registration
+├── main.py                    # App entry point, router + exception handler registration
+├── exceptions.py              # Custom exceptions (DuplicateEntry, ResourceNotFound)
+├── seed.py                    # Local dev test data (users, decks, cards)
+├── create_admin.py            # One-time admin bootstrap from .env (run after deploy)
 ├── config/
 │   └── db.py                  # DB engine, session dependency
 ├── auth/
@@ -54,13 +58,16 @@ flashMe/
 │   ├── auth_routes.py
 │   ├── user_routes.py
 │   ├── deck_routes.py
-│   └── flashcard_routes.py
+│   ├── flashcard_routes.py
+│   ├── saved_deck_routes.py
+│   └── card_progress_routes.py
 ├── service/                   # Database CRUD logic
 │   ├── user_CRUD.py
 │   ├── deck_CRUD.py
 │   ├── flashcard_CRUD.py
 │   ├── saved_deck_CRUD.py
 │   └── card_progress_CRUD.py
+├── migrations/                # Alembic migration scripts
 └── documentation/             # Project docs, flowcharts, checklists
 ```
 
@@ -99,9 +106,25 @@ flashMe/
 |---|---|---|---|
 | GET | `/decks/{id}/cards/` | Yes | List all cards in a deck |
 | GET | `/decks/{id}/cards/{card_id}` | Yes | Get a single card |
-| POST | `/decks/{id}/cards/` | Yes | Add a card to a deck |
+| POST | `/decks/{id}/cards/` | Yes | Add a card to a deck (auto-creates an "Untitled Deck" if the deck doesn't exist yet) |
 | PUT | `/decks/{id}/cards/{card_id}` | Yes | Update a card |
 | DELETE | `/decks/{id}/cards/{card_id}` | Yes | Delete a card |
+
+### Saved Decks
+| Method | Endpoint | Auth | Description |
+|---|---|---|---|
+| POST | `/decks/{id}/save` | Yes | Save a public deck to your collection |
+| GET | `/decks/saved` | Yes | List your saved decks |
+| DELETE | `/decks/{id}/save` | Yes | Remove a deck from your saved collection |
+
+### Study (SM-2)
+| Method | Endpoint | Auth | Description |
+|---|---|---|---|
+| GET | `/decks/{id}/study` | Yes | Cards due for review (`include_new` query param) |
+| GET | `/decks/{id}/study/status` | Yes | All cards with their learning status |
+| POST | `/decks/{id}/cards/{card_id}/review` | Yes | Submit a rating (1–5), updates progress |
+| POST | `/decks/{id}/cards/{card_id}/reset` | Yes | Reset progress for a single card |
+| POST | `/decks/{id}/reset` | Yes | Reset progress for the whole deck |
 
 ## Getting Started
 
@@ -127,6 +150,15 @@ pip install -r requirements.txt
 cp .env.example .env
 # Fill in the values (see Environment Variables below)
 
+# Run database migrations
+alembic upgrade head
+
+# (Optional) seed local test data
+python3 seed.py
+
+# (Optional) create the first admin from .env values
+python3 create_admin.py
+
 # Start the server
 uvicorn main:app --reload
 ```
@@ -138,6 +170,15 @@ DATABASE_URL=postgresql://user:password@localhost:5432/flashme
 SECRET_KEY=your-secret-key-here
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=30
+
+# "development" disables the secure flag on cookies so they work over HTTP locally.
+# Anything else (or unset) defaults to production behavior (secure=True, HTTPS only).
+ENV=development
+
+# Used by create_admin.py to bootstrap the first admin user
+ADMIN_EMAIL=admin@flashme.de
+ADMIN_PASSWORD=change-me
+ADMIN_NAME=admin
 ```
 
 ### Interactive API Docs
@@ -188,19 +229,25 @@ The constants (`0.1`, `0.08`, `0.02`) are Wozniak's empirically tested values �
 
 ## Security Design
 
-- Passwords are never stored in plain text (bcrypt via pwdlib)
+- Passwords are never stored in plain text (Argon2id via pwdlib)
 - JWT Access Tokens expire after 30 minutes
 - Refresh Tokens are stored in the database — revoked on logout
 - Refresh Token Rotation — a new refresh token is issued on every `/refresh` call
 - All tokens are stored in httponly cookies — not accessible to JavaScript
+- Cookies use `secure=True` in production (HTTPS only); disabled in development via `ENV`
 - `owner_id` is always taken from the auth token, never from the request body
 - Private decks are only accessible to their owner
 - Admin-only routes are protected via `require_admin` dependency
+- The first admin is bootstrapped via `create_admin.py`, never through a public endpoint
+- Email format is validated at the schema level via a regex pattern
+- DB integrity errors are caught globally and returned as clean 409 / 404 responses
 
 ## Roadmap
 
-- [ ] SavedDeck endpoints (Fork/Save feature)
-- [ ] SM-2 spaced repetition study mode
+- [x] SavedDeck endpoints (Fork/Save feature)
+- [x] SM-2 spaced repetition study mode
+- [x] Global exception handling (409 / 404)
+- [x] Admin bootstrap script (`create_admin.py`)
 - [ ] Frontend (Phase 2 of this project)
 - [ ] Test suite (pytest)
 - [ ] Docker setup
