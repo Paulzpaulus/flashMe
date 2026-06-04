@@ -40,7 +40,7 @@ def _assert_deck_access(
 async def list_cards(
     deck_id: int,
     session: Session = Depends(get_session),
-    current_user: Users = Depends(get_current_user),  # 🔒
+    current_user: Users = Depends(get_current_user),
 ):
     _assert_deck_access(session, deck_id, cast(int, current_user.id))
     return CRUD_get_cards_by_deck(session, deck_id)
@@ -53,7 +53,7 @@ async def get_card(
     deck_id: int,
     card_id: int,
     session: Session = Depends(get_session),
-    current_user: Users = Depends(get_current_user),  # 🔒
+    current_user: Users = Depends(get_current_user),
 ):
     _assert_deck_access(session, deck_id, cast(int, current_user.id))
     card = CRUD_get_card(session, card_id)
@@ -71,7 +71,7 @@ async def create_card(
     deck_id: int,
     data: FlashcardCreate,
     session: Session = Depends(get_session),
-    current_user: Users = Depends(get_current_user),  # 🔒
+    current_user: Users = Depends(get_current_user),
 ):
     user_id = cast(int, current_user.id)
     deck = CRUD_get_deck(session, deck_id)
@@ -95,7 +95,7 @@ async def update_card(
     card_id: int,
     data: FlashcardUpdate,
     session: Session = Depends(get_session),
-    current_user: Users = Depends(get_current_user),  # 🔒
+    current_user: Users = Depends(get_current_user),
 ):
     _assert_deck_access(session, deck_id, cast(int, current_user.id), must_own=True)
     card = CRUD_get_card(session, card_id)
@@ -109,7 +109,7 @@ async def delete_card(
     deck_id: int,
     card_id: int,
     session: Session = Depends(get_session),
-    current_user: Users = Depends(get_current_user),  # 🔒
+    current_user: Users = Depends(get_current_user),
 ):
     _assert_deck_access(session, deck_id, cast(int, current_user.id), must_own=True)
     deleted = CRUD_delete_card(session, card_id)

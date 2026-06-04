@@ -11,12 +11,11 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
     raise RuntimeError("DATABASE_URL not set")
 
-engine = create_engine(DATABASE_URL, echo=True)
+engine = create_engine(DATABASE_URL, echo=False)
 
 
 def create_db_and_tables():
     SQLModel.metadata.create_all(engine)
-    # print("Done creating tables")
 
 
 def get_session():

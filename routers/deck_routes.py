@@ -29,7 +29,7 @@ async def list_public_decks(session: Session = Depends(get_session)):
 @deck_routes.get("/", response_model=list[DeckRead], summary="Get all my own decks")
 async def list_my_decks(
     session: Session = Depends(get_session),
-    current_user: Users = Depends(get_current_user),  # 🔒
+    current_user: Users = Depends(get_current_user),
 ):
     return CRUD_get_all_decks(session, cast(int, current_user.id))
 
@@ -38,7 +38,7 @@ async def list_my_decks(
 async def get_deck(
     deck_id: int,
     session: Session = Depends(get_session),
-    current_user: Users = Depends(get_current_user),  # 🔒
+    current_user: Users = Depends(get_current_user),
 ):
     deck = CRUD_get_deck(session, deck_id)
     if not deck:
@@ -59,7 +59,7 @@ async def get_deck(
 async def create_deck(
     data: DeckCreate,
     session: Session = Depends(get_session),
-    current_user: Users = Depends(get_current_user),  # 🔒
+    current_user: Users = Depends(get_current_user),
 ):
     # owner_id comes from the token, not from the request body.
     # This means a user cannot create a deck "owned" by someone else.
@@ -73,7 +73,7 @@ async def update_deck(
     deck_id: int,
     data: DeckUpdate,
     session: Session = Depends(get_session),
-    current_user: Users = Depends(get_current_user),  # 🔒
+    current_user: Users = Depends(get_current_user),
 ):
     deck = CRUD_get_deck(session, deck_id)
     if not deck:
@@ -87,7 +87,7 @@ async def update_deck(
 async def delete_deck(
     deck_id: int,
     session: Session = Depends(get_session),
-    current_user: Users = Depends(get_current_user),  # 🔒
+    current_user: Users = Depends(get_current_user),
 ):
     deck = CRUD_get_deck(session, deck_id)
     if not deck:

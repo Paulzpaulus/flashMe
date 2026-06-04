@@ -49,7 +49,7 @@ async def show_a_user(
 async def create_user(
     data: UserAdminCreate,
     session: Session = Depends(get_session),
-    _: Users = Depends(require_admin),  ####HIER
+    _: Users = Depends(require_admin),
 ):
     hashed_pw = hash_password(data.password)
     user = Users(
